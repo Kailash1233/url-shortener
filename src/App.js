@@ -1,23 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import axios from 'axios';
 
 function App() {
+  const [originalUrl, setOriginalUrl] = useState('');
+  const [shortenedUrl, setShortenedUrl] = useState('');
+
+  const handleShorten = async () => {
+    try {
+      const response = await axios.post('/api/shorten', { originalUrl });
+      setShortenedUrl(response.data.shortenedUrl);
+    } catch (error) {
+      console.error('Error shortening URL', error);
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>URL Shortener</h1>
+      <input
+        type="text"
+        placeholder="Enter URL to shorten"
+        value={originalUrl}
+        onChange={(e) => setOriginalUrl(e.target.value)}
+      />
+      <button onClick={handleShorten}>Shorten</button>
+      {shortenedUrl && (
+        <div>
+          <p>Shortened URL:</p>
+          <a href={shortenedUrl} target="_blank" rel="noopener noreferrer">
+            {shortenedUrl}
+          </a>
+        </div>
+      )}
     </div>
   );
 }
