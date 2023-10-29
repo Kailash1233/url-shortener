@@ -1,39 +1,57 @@
-import React, { useState } from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 
-function App() {
-  const [originalUrl, setOriginalUrl] = useState('');
-  const [shortenedUrl, setShortenedUrl] = useState('');
+class ShortenURL extends Component {
+  state = {
+    longUrl: 'http://www.mashape.com',
+    shortenedUrl: '',
+  };
 
-  const handleShorten = async () => {
+  handleShortenURL = async () => {
     try {
-      const response = await axios.post('/api/shorten', { originalUrl });
-      setShortenedUrl(response.data.shortenedUrl);
+      const response = await axios.get('https://ismaelc-bitly.p.rapidapi.com/v3/shorten', {
+        params: {
+          login: '<REQUIRED>',
+          apikey: '<REQUIRED>',
+          longUrl: this.state.longUrl,
+        },
+        headers: {
+          'X-RapidAPI-Key': '3356947f96mshad23da2bc1213c2p1e8035jsn72f377f04a18',
+          'X-RapidAPI-Host': 'ismaelc-bitly.p.rapidapi.com',
+        },
+      });
+
+      this.setState({ shortenedUrl: response.data.data.url });
     } catch (error) {
-      console.error('Error shortening URL', error);
+      console.error(error);
     }
   };
 
-  return (
-    <div className="App">
-      <h1>URL Shortener</h1>
-      <input
-        type="text"
-        placeholder="Enter URL to shorten"
-        value={originalUrl}
-        onChange={(e) => setOriginalUrl(e.target.value)}
-      />
-      <button onClick={handleShorten}>Shorten</button>
-      {shortenedUrl && (
+  handleInputChange = (event) => {
+    this.setState({ longUrl: event.target.value });
+  };
+
+  render() {
+    return (
+      <div>
+        <h1>URL Shortener</h1>
         <div>
-          <p>Shortened URL:</p>
-          <a href={shortenedUrl} target="_blank" rel="noopener noreferrer">
-            {shortenedUrl}
-          </a>
+          <label>Long URL: </label>
+          <input
+            type="text"
+            value={this.state.longUrl}
+            onChange={this.handleInputChange}
+          />
         </div>
-      )}
-    </div>
-  );
+        <button onClick={this.handleShortenURL}>Shorten URL</button>
+        {this.state.shortenedUrl && (
+          <div>
+            <p>Shortened URL: {this.state.shortenedUrl}</p>
+          </div>
+        )}
+      </div>
+    );
+  }
 }
 
-export default App;
+export default ShortenURL;
